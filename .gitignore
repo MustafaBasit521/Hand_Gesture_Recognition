@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.pth
+*.npy
+*.zip
+*.h5
+.env
+venv/
+.DS_Store
+AirDraw_Preprocessed_MNIST/
