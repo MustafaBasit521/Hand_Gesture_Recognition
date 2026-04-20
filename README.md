@@ -22,7 +22,7 @@ Air-Draw/
 │
 ├── model/
 │   ├── cnn_model.py
-│   └── airdraw_model.h5   ✅ (VERY IMPORTANT)
+│   └── airdraw_model.pth   ✅ (VERY IMPORTANT)
 │
 ├── app/
 │   ├── app.py
