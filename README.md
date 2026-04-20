@@ -19,14 +19,19 @@ Air-Draw/
 ├── notebooks/
 │   ├── phase1_preprocessing.ipynb
 │   └── phase2_training_evaluation.ipynb
+│
 ├── model/
-│   └── cnn_model.py
+│   ├── cnn_model.py
+│   └── airdraw_model.h5   ✅ (VERY IMPORTANT)
+│
 ├── app/
 │   ├── app.py
 │   └── utils.py
+│
 ├── results/
 │   ├── confusion_matrix.png
 │   └── accuracy_plot.png
+│
 ├── requirements.txt
 └── README.md
 
