@@ -3,6 +3,7 @@ torchvision
 streamlit
 numpy
 pillow
+seaborn
 opencv-python
 matplotlib
 scikit-learn

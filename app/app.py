@@ -18,7 +18,7 @@ st.write("Upload a handwritten digit image and CNN will predict it.")
 def load_model():
     model = MNISTNet()
 
-    MODEL_PATH = os.path.join('model', 'airdraw_model.pth')
+    MODEL_PATH = os.path.join(os.path.dirname(__file__), '..', 'model', 'airdraw_model.pth')
 
     model.load_state_dict(
         torch.load(MODEL_PATH, map_location=torch.device('cpu'))
