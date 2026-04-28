@@ -7,7 +7,7 @@ with a real-time drawing interface.
 ---
 
 ## 👨‍💻 Project Info
-- **Student:** Mustafa Basit
+- **Students:** Mustafa Basit, Izma Qamar, Manal Hameed
 - **Dataset:** MNIST (70,000 handwritten digit images)
 - **Model:** Convolutional Neural Network (CNN) — PyTorch
 - **Interface:** Streamlit Web App
