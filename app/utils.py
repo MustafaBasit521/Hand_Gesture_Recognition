@@ -51,7 +51,7 @@ def preprocess_image(image):
 
     # Resize to 28x28 — CNN expects exactly this size
     img_pil = Image.fromarray(thresh)
-    img_pil = img_pil.resize((28, 28), Image.LANCZOS)
+    img_pil = img_pil.resize((28, 28), Image.Resampling.LANCZOS)
 
     # Normalize 0-1
     final_array = np.array(img_pil) / 255.0
