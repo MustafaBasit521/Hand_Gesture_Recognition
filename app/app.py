@@ -9,6 +9,7 @@ import torch
 from PIL import Image
 
 # ── PAGE SETUP ─────────────────────────────────────────────
+
 st.set_page_config(page_title="Air-Draw Digit Recognizer", page_icon="✏️")
 st.title("✏️ Air-Draw: Handwritten Digit Recognizer")
 st.write("Upload a handwritten digit image and CNN will predict it.")
@@ -39,11 +40,25 @@ if uploaded_file is not None:
     
     image = Image.open(uploaded_file)
     st.image(image, caption="Uploaded Image", width=150)
+    st.write("Image size:", image.size)
     
     if st.button("🔍 Predict Digit"):
         
         tensor = preprocess_image(image)
-        
+        # ==========================================
+        # SHOW PROCESSED IMAGE
+        # ==========================================
+
+        processed = tensor.squeeze().numpy()
+
+        # undo normalization for display
+        processed = (processed * 0.5) + 0.5
+
+        st.image(
+            processed,
+            caption="Processed 28x28 Image",
+            width=150
+        )
         with torch.no_grad():
             output = model(tensor)
             probabilities = torch.softmax(output, dim=1)
