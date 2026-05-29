@@ -1,150 +1,90 @@
-# Air-Draw: Handwritten Digit Recognizer
+# Air-Draw: Real-Time Handwritten Digit Recognizer
 
-Air-Draw is a handwritten digit classification project built with PyTorch and Streamlit. The current system loads a trained CNN model, preprocesses an uploaded image into an MNIST-like format, and predicts the digit from `0` to `9`.
-
-The app is currently upload-based. Real-time webcam or air-draw input is a future extension, not part of the current implementation.
+Air-Draw is a real-time computer vision project built with PyTorch, MediaPipe, OpenCV, and Streamlit. It allows users to write digits in the air using their index finger. A trained Convolutional Neural Network (CNN) then predicts the drawn digit from `0` to `9` in real-time.
 
 ## Project Info
 
-- Students: Mustafa Basit, Izma Qamar, Manal Hameed
-- Dataset: MNIST (`70,000` grayscale digit images)
-- Framework: PyTorch
-- Interface: Streamlit
-- Task: Single-digit handwritten classification
+- **Students**: Mustafa Basit, Izma Qamar, Manal Hameed
+- **Model**: CNN trained on the MNIST dataset (`70,000` grayscale images)
+- **Computer Vision**: MediaPipe for hand tracking, OpenCV for virtual canvas
+- **Interface**: Streamlit Web App
+- **Task**: Real-time single-digit handwritten classification
 
-## Current Features
+## ✨ Features
 
-- Upload a handwritten digit image in `PNG`, `JPG`, or `JPEG`
-- Automatically preprocess the image before inference
-- Predict the digit using a trained CNN
-- Show confidence score and class probability distribution
-- Save training artifacts such as confusion matrix and loss curve
+- **Real-Time Air-Drawing**: Use your webcam and finger to draw digits in the air.
+- **Gesture Controls**: 
+  - ☝️ **Index Finger Up**: Draw mode.
+  - ✌️ **Two Fingers Up**: Hover / Stop drawing.
+  - 🖐️ **All Fingers Up**: Clear the canvas.
+- **Live Prediction**: Predicts the drawn digit instantly using a trained CNN.
+- **Confidence Heatmap**: Shows a real-time probability bar chart for all digits (0-9).
+- **Dataset Collector**: Save your drawn digits locally with a click of a button to build your own dataset for future training.
+- **Image Upload (Legacy)**: Still supports uploading a static image of a handwritten digit for classification.
 
-## Project Structure
+## 🚀 How to Run
+
+### Easiest Way (Using the automated script)
+We've added a shortcut script so you don't have to manually activate the virtual environment or remember the Streamlit command.
+
+1. Open your terminal in the `Hand_Gesture_Recognition` folder.
+2. Run the script:
+   ```bash
+   ./run.sh
+   ```
+*(Note: If you get a permission error, run `chmod +x run.sh` first).*
+
+### Manual Way
+1. Activate the virtual environment:
+   ```bash
+   source venv/bin/activate
+   ```
+2. Run the Real-Time Camera App:
+   ```bash
+   streamlit run app/air_draw_app.py
+   ```
+*(To run the original image upload version, use `streamlit run app/app.py`)*
+
+## 📂 Project Structure
 
 ```text
 Air-Draw/
 ├── app/
-│   ├── app.py
-│   └── utils.py
+│   ├── air_draw_app.py      # Main real-time webcam Streamlit app
+│   └── app.py               # Legacy image upload Streamlit app
+├── cv/
+│   ├── hand_tracking.py     # MediaPipe hand gesture tracking logic
+│   └── virtual_canvas.py    # OpenCV logic to draw lines on screen
 ├── model/
-│   ├── cnn_model.py
-│   └── airdraw_model.pth
-├── notebooks/
-│   ├── MNIST_Preprocessing.ipynb
-│   └── model_implementation.ipynb
-├── results/
-│   ├── confusion_matrix.png
-│   └── loss_curve.png
-├── requirements.txt
-├── README.md
-└── PROJECT_DOCUMENTATION.md
+│   ├── cnn_model.py         # PyTorch CNN architecture
+│   └── airdraw_model.pth    # Saved trained weights
+├── preprocessing/
+│   └── utils.py             # Transforms camera/canvas images to MNIST format
+├── captured_data/           # Directory where user-saved digits are stored
+├── requirements.txt         # Project dependencies
+├── run.sh                   # Shortcut script to start the app
+├── README.md                # This file
+└── PROJECT_DOCUMENTATION.md # Detailed academic report
 ```
 
-## Model Summary
+## 🧠 Under the Hood
 
-The CNN defined in `model/cnn_model.py` uses:
+### 1. Computer Vision (The "Eyes")
+We use **MediaPipe Solutions** to detect hand landmarks. By tracking the coordinates of Landmark #8 (Index Finger Tip), we map its movement onto a black OpenCV `VirtualCanvas`. Gestures (number of fingers raised) control the state between drawing, hovering, and clearing.
 
-- `Conv2d(1, 32, kernel_size=3, padding=1)`
-- `Conv2d(32, 64, kernel_size=3, padding=1)`
-- `MaxPool2d(2, 2)`
-- `ReLU`
-- `Dropout(0.5)`
-- `Linear(64 * 7 * 7, 128)`
-- `Linear(128, 10)`
+### 2. Preprocessing (The "Bridge")
+Real-world drawings are messy. Before passing the canvas to the model, `preprocessing/utils.py` applies steps to make it look exactly like MNIST training data:
+- Bounding box extraction
+- Resizing while preserving aspect ratio
+- Centering on a 28x28 canvas
+- Applying a slight Gaussian blur and normalization
 
-## Training Configuration
+### 3. CNN Model (The "Brain")
+The PyTorch model features 2 Convolutional Layers, Max Pooling, Dropout (0.5), and 2 Fully Connected Layers. It achieves **99.39% accuracy** on the MNIST test set.
 
-Training details from `notebooks/model_implementation.ipynb`:
+## ⚠️ Troubleshooting
 
-- Train: `48,000`
-- Validation: `12,000`
-- Test: `10,000`
-- Batch size: `64`
-- Optimizer: `Adam`
-- Learning rate: `0.001`
-- Loss function: `CrossEntropyLoss`
-- Scheduler: `ReduceLROnPlateau(factor=0.5, patience=2)`
-- Early stopping: `patience=5`, `min_delta=0.001`
-- Planned epochs: `20`
-
-### Training Augmentation
-
-- `RandomRotation(degrees=10)`
-- `RandomAffine(translate=(0.1, 0.1), scale=(0.9, 1.1))`
-- `RandomErasing(p=0.1, scale=(0.02, 0.08))`
-- `Normalize((0.5,), (0.5,))`
-
-Validation and test data use:
-
-- `ToTensor()`
-- `Normalize((0.5,), (0.5,))`
-
-## Inference Preprocessing
-
-The upload preprocessing in `app/utils.py` currently:
-
-1. Converts the image to grayscale
-2. Increases contrast
-3. Inverts the image to match MNIST style
-4. Applies a fixed threshold
-5. Detects the digit bounding box
-6. Crops the foreground digit
-7. Resizes while preserving aspect ratio
-8. Centers it on a `28x28` black canvas
-9. Applies slight Gaussian blur
-10. Normalizes the tensor for the model
-
-## Results
-
-Latest evaluation from `notebooks/model_implementation.ipynb`:
-
-- Test Accuracy: `99.39%`
-- Macro F1-score: `0.99`
-- Weighted F1-score: `0.99`
-
-Per-class precision and recall are also around `0.99` to `1.00` across the MNIST test set.
-
-## How to Run
-
-### 1. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 2. Run the Streamlit app
-
-```bash
-streamlit run app/app.py
-```
-
-## Input Recommendations
-
-Best results come from:
-
-- A single handwritten digit only
-- Clear foreground and plain background
-- Large, centered digit
-- Dark writing on a light background or the reverse
-- Minimal shadows, blur, or background clutter
-
-Likely poor inputs:
-
-- Multiple digits in one image
-- Full notebook pages
-- Very noisy or low-light photos
-- Digits mixed with text or symbols
-- Small or faint digits
-
-RGB images are accepted, but color is ignored because the preprocessing converts them to grayscale before inference.
-
-## Future Goals
-
-- Add a browser drawing canvas
-- Add webcam or air-draw capture with computer vision
-- Improve preprocessing for real-world photos
-- Train on custom user-drawn data beyond MNIST
-- Add better validation, testing, and deployment structure
-
-For a full implementation write-up and preprocessing upgrade plan, see [PROJECT_DOCUMENTATION.md](/c:/Air-Draw/PROJECT_DOCUMENTATION.md).
+**Error: "ModuleNotFoundError: No module named 'mediapipe.solutions'"**
+This happens if you accidentally installed MediaPipe v0.10.21 or newer, which removed the `solutions` API.
+*Fix*: Open terminal, activate your venv, and run:
+`pip uninstall mediapipe -y && pip install mediapipe==0.10.14`

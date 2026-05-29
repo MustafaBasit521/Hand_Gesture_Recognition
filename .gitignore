@@ -8,3 +8,5 @@ __pycache__/
 venv/
 .DS_Store
 AirDraw_Preprocessed_MNIST/
+results/
+data/
